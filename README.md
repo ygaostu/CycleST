@@ -52,7 +52,7 @@ The reconstructed horizontal-parallax light field is saved in `./demo/tower_r_5_
 ### 5. Full-parallax light field reconstruction ###
 In addition to the above 3D light field reconstruction, CycleST can also be applied to full-parallax (4D) light field reconstruction. 
 Similarly, we prepare a demo 4D light field in `./demo/tower_4d` [3]. 
-We use the same parameter configuration as the previous step. 
+We use the same parameter configuration as the previous step to enhance the angular resolution from 3 x 3 to 9 x 9. 
 ``` bash
 python predict.py --path_base=./demo --name_lf=tower_4d --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4 --full_parallax
 ```

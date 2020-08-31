@@ -1,5 +1,6 @@
 # CycleST
-This is the official **TensorFlow 2** implementation of the paper "Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency" [[ArXiv](https://arxiv.org/abs/2003.09294)][Video]. If you find this code useful in your research, please consider citing [1, 2] and 
+This is the official **TensorFlow 2** implementation of the paper "Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency" [[ArXiv](https://arxiv.org/abs/2003.09294)][[Video](https://www.youtube.com/watch?v=r9e4XoX07hE)]. 
+If you find this code useful in your research, please consider citing [1, 2] and 
 ```
 @article{gao2020self,
   title={Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency},

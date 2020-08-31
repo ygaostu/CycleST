@@ -11,19 +11,19 @@ def create_path(path):
         shutil.rmtree(path) 
     os.makedirs(path)
 
-def rec_lf_3d(lf_volume_in, interp_rate, op_shear, epi_h, im_h, epi_w, dmin, save_res=False):
+def rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end, save_res=False, path_save_epi=None, path_save_lf=None):
     start_time = time.time() 
     
     # Load and pre-shear the given light field
     lf_volume, shifts = op_shear.pre_shear(lf_volume_in, dmin)
 
-    lf_vol_pad = np.zeros((epi_h, im_h, epi_w, 3), np.float32) 
-    lf_vol_pad[row_start:row_end:samp_interval] = lf_volume
+    lf_vol_pad = np.zeros((epi_h, op_shear.im_h, op_shear.epi_w, 3), np.float32) 
+    lf_vol_pad[row_start:row_end:op_shear.samp_interval] = lf_volume
     lf_vol_pad = np.transpose(lf_vol_pad, (1, 3, 0, 2)) / 255.  # im_h, 3, epi_h, epi_w
     lf_vol_pad = lf_vol_pad[np.newaxis, ...]
-    lf_vol_rec = np.zeros((im_h, 3, epi_h, epi_w))
+    lf_vol_rec = np.zeros((op_shear.im_h, 3, epi_h, op_shear.epi_w))
 
-    for i in range(im_h):
+    for i in range(op_shear.im_h):
         lf_vol_rec[i] = model(tf.convert_to_tensor(lf_vol_pad[:, i], tf.float32) ).numpy()
         if (i+1) % 128 == 0:
             print(f"finish recovering {i+1} rows / EPIs")
@@ -34,13 +34,13 @@ def rec_lf_3d(lf_volume_in, interp_rate, op_shear, epi_h, im_h, epi_w, dmin, sav
     
     if save_res:
         # Save intermediate EPI reconstruction results
-        for i in range(im_h):
+        for i in range(op_shear.im_h):
             Image.fromarray(lf_vol_rec[:, i]).save(join(path_save_epi, f"{(i+1):04d}.png"))
 
     # Post-shear and tailor the reconstructed light field 
     lf_vol_rec = op_shear.back_shear(lf_vol_rec[row_start:row_end], shifts)
-    lf_vol_rec = lf_vol_rec[::(samp_interval//interp_rate)]
-    lf_vol_rec[::interp_rate] = lf_volume_in
+    lf_vol_rec = lf_vol_rec[::(op_shear.samp_interval//op_shear.interp_rate)]
+    lf_vol_rec[::op_shear.interp_rate] = lf_volume_in
    
     if save_res:
         for i in range(len(lf_vol_rec)):
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         lf_volume_gt = load_lf_3d(join(path_base, name_lf), angu_res_gt, im_h, im_w)
         lf_volume_in = lf_volume_gt[::interp_rate]
         print(f"\n Start reconstructing {name_lf} (dmin={dmin*interp_rate} drange={drange*interp_rate}) \n")
-        rec_lf_3d(lf_volume_in, interp_rate, op_shear, epi_h, im_h, epi_w, dmin, True)
+        rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end, True, path_save_epi, path_save_lf)
     else:
         angu_res_gt_rows, angu_res_gt_cols = angu_res_gt, angu_res_gt
         lf_volume_gt = load_lf_4d(join(path_base, name_lf), angu_res_gt_rows, angu_res_gt_cols, im_h, im_w)
@@ -123,12 +123,12 @@ if __name__ == "__main__":
         for row in range(0, angu_res_gt_rows, interp_rate):
             lf_volume_in = lf_volume_gt[row, ::interp_rate] 
             print(f"\n Start reconstructing {name_lf} row {row+1} (dmin={dmin*interp_rate} drange={drange*interp_rate}) \n")
-            lf_volume_rec[row] = rec_lf_3d(lf_volume_in, interp_rate, op_shear, epi_h, im_h, epi_w, dmin)
+            lf_volume_rec[row] = rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end)
             
         for col in range(angu_res_gt_cols):
             lf_volume_in = np.rot90(lf_volume_rec[::interp_rate, col], 1, (1, 2)).copy()
             print(f"\n Start reconstructing {name_lf} col {col+1} (dmin={dmin*interp_rate} drange={drange*interp_rate}) \n")
-            lf_volume_rec[:, col] = np.rot90(rec_lf_3d(lf_volume_in, interp_rate, op_shear, epi_h, im_h, epi_w, dmin), 3, (1, 2))
+            lf_volume_rec[:, col] = np.rot90(rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end), 3, (1, 2))
 
         # Save the reconstructed full-parallax (4D) light field
         for row in range(angu_res_gt_rows):

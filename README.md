@@ -6,6 +6,8 @@ If you find this code useful in your research, please consider citing [1, 2] and
   title={Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency},
   author={Gao, Yuan and Bregovic, Robert and Gotchev, Atanas},
   journal={IEEE Signal Processing Letters},
+  volume={27},
+  pages={1425--1429},
   year={2020}
 }
 ```

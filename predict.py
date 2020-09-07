@@ -124,7 +124,20 @@ if __name__ == "__main__":
             lf_volume_in = lf_volume_gt[row, ::interp_rate] 
             print(f"\n Start reconstructing {name_lf} row {row+1} (dmin={dmin*interp_rate} drange={drange*interp_rate}) \n")
             lf_volume_rec[row] = rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end)
-            
+
+        if im_h != im_w:
+            tf.keras.backend.clear_session()
+            # Load CycleST model
+            epi_w_new = ((int(im_h + abs(dmin) * (angu_res_gt - 1) + 128) >> 4) + 1) << 4
+            model = Model(path_shearlets, epi_h, epi_w_new)
+            checkpoint = tf.train.Checkpoint(step=tf.Variable(0), generator=model)
+            checkpoint.restore(tf.train.latest_checkpoint(path_model))
+            print(f"Best checkpoint loaded at step: {checkpoint.step.numpy()}")
+
+            # Initialize shearing operation
+            op_shear = lfShear(interp_rate, samp_interval, angu_res_in=angu_res_in, angu_res_dense=angu_res_full,
+                                im_h=im_w, im_w=im_h, epi_w=epi_w_new)
+
         for col in range(angu_res_gt_cols):
             lf_volume_in = np.rot90(lf_volume_rec[::interp_rate, col], 1, (1, 2)).copy()
             print(f"\n Start reconstructing {name_lf} col {col+1} (dmin={dmin*interp_rate} drange={drange*interp_rate}) \n")

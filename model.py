@@ -2,11 +2,16 @@ import numpy as np
 import tensorflow as tf
 import scipy.io as sio
 from tensorflow.keras import layers
+import sys
 
 
 def load_shearlet_system(path):
-    
-    fmat = sio.loadmat(path)
+    try:
+        fmat = sio.loadmat(path)
+    except FileNotFoundError:
+        print(f"Could not find file: {path}")
+        sys.exit()
+
     dec = fmat['dec'].astype(np.float32)
     rec = fmat['rec'].astype(np.float32)
     dec = np.transpose(dec, (2, 0, 1))

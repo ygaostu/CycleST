@@ -129,6 +129,7 @@ if __name__ == "__main__":
             tf.keras.backend.clear_session()
             # Load CycleST model
             epi_w_new = ((int(im_h + abs(dmin) * (angu_res_gt - 1) + 128) >> 4) + 1) << 4
+            path_shearlets = join(path_shearlet_system, f"st_{epi_h}_{epi_w_new}_5.mat")
             model = Model(path_shearlets, epi_h, epi_w_new)
             checkpoint = tf.train.Checkpoint(step=tf.Variable(0), generator=model)
             checkpoint.restore(tf.train.latest_checkpoint(path_model))

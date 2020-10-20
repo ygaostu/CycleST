@@ -2,25 +2,40 @@ import numpy as np
 import tensorflow as tf
 import scipy.io as sio
 from tensorflow.keras import layers
-import sys
+import sys, math
 
 
-def load_shearlet_system(path):
+def load_shearlet_system(path, height, width):
     try:
         fmat = sio.loadmat(path)
     except FileNotFoundError:
-        print(f"Could not find file: {path}")
+        print(f"\n Could not find shearlet system file: {path} \n")
         sys.exit()
+        
+    dec = fmat["dec"].astype(np.float32)
+    rec = fmat["rec"].astype(np.float32)
+    ksize, _, nfilter = dec.shape 
+    assert ksize <= height
+    assert ksize <= width
 
-    dec = fmat['dec'].astype(np.float32)
-    rec = fmat['rec'].astype(np.float32)
-    dec = np.transpose(dec, (2, 0, 1))
-    rec = np.transpose(rec, (2, 0, 1))
+    row_begin = int(math.ceil((height-ksize)/2.))
+    col_begin = int(math.ceil((width-ksize)/2.))
+    
+    # Numpy -> Tensorflow 
+    dec = tf.transpose(dec, (2, 0, 1))
+    rec = tf.transpose(rec, (2, 0, 1))
+    
+    dec = tf.signal.fftshift(dec, (1, 2))
+    rec = tf.signal.fftshift(rec, (1, 2))
+    
+    paddings = tf.constant([[0, 0], [row_begin, height-ksize-row_begin], [col_begin, width-ksize-col_begin]])
+    dec_padd = tf.pad(dec, paddings, "CONSTANT")
+    rec_padd = tf.pad(rec, paddings, "CONSTANT")
 
-    dec, rec = tf.convert_to_tensor(dec, tf.float32), tf.convert_to_tensor(rec, tf.float32)
-    dec_fft, rec_fft = tf.signal.fft2d(tf.cast(dec, tf.complex64)), tf.signal.fft2d(tf.cast(rec, tf.complex64))
-
-    return dec_fft, rec_fft
+    dec_padd = tf.signal.ifftshift(dec_padd, (1, 2))
+    rec_padd = tf.signal.ifftshift(rec_padd, (1, 2))
+    
+    return tf.signal.fft2d(tf.cast(dec_padd, tf.complex64)), tf.signal.fft2d(tf.cast(rec_padd, tf.complex64))
 
 
 class AnalysisTrans(layers.Layer):
@@ -86,7 +101,7 @@ def upsample(filters, size):
 
 def Model(path_model, IMG_HEIGHT, IMG_WIDTH, ST_CHANNELS=68):
 
-    dec_fft, rec_fft = load_shearlet_system(path_model)
+    dec_fft, rec_fft = load_shearlet_system(path_model, IMG_HEIGHT, IMG_WIDTH)
     ana = AnalysisTrans(dec_fft)
     syn = SynthesisTrans(rec_fft)
 

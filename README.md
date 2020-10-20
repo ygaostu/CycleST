@@ -11,15 +11,15 @@ If you find this code useful in your research, please consider citing [1, 2] and
   year={2020}
 }
 ```
-This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.1. 
-If you have any question, please contact Yuan Gao at <yuan.gao@tuni.fi>.
+This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.1 and NVIDIA GeForce RTX 2080 GPU. 
+If you have any question, please contact the first author at <yuan.gao@tuni.fi>.
 
 ## Getting started ##
 ### 1. Python requirements ###
-Follow the instructions on the [TensorFlow official website](https://www.tensorflow.org/install) to install TensorFlow 2. In addition, we need Python Imaging Library (PIL) and OpenCV for shearing-related operations: 
+Follow the instructions on the [TensorFlow official website](https://www.tensorflow.org/install) to install TensorFlow 2. In addition, we need Python Imaging Library (PIL) and SciPy libraries for image IO and shearing-related operations: 
 ``` bash
 pip install Pillow
-pip install opencv-python
+pip install scipy
 ```
 ### 2. Prepare datasets ###
 A demo dataset `./demo/tower_r_5` is prepared here. 
@@ -33,13 +33,14 @@ The construction of the elaborately-tailored shearlet system comes from the publ
 In order to generate the shearlet system that can be used by CycleST, we suggest using the below code 
 ``` matlab
 addpath('./shearlets');
-height = 256; width = 672;
-sys = constructShearlet([255, 255], 1:5, [height, width]); 
+kSize = 255;
+nScale = 5;
+sys = constructShearlet([kSize, kSize], 1:nScale); 
 dec = sys.dec;
 rec = sys.rec;
-save(sprintf('st_%d_%d_5', height, width), 'dec', 'rec');
+save(sprintf('st_%d_%d_%d', kSize, kSize, nScale), 'dec', 'rec');
 ```
-You may adjust the parameters `height` and `width` according to the size of your remapped EPIs. The created mat file is placed in the `./shearlets` folder.  
+The created mat file `st_255_255_5.mat` is placed in the `./shearlets` folder.  
 
 ### 4. Horizontal-parallax light field reconstruction ###
 The goal of this demo is to reconstruct the above demo 3D light field `tower_r_5` from a Sparsely-Sampled Light Field (SSLF) with only three images: `0001.png`, `0005.png` and `0009.png`.

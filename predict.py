@@ -15,7 +15,7 @@ def rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end, sa
     start_time = time.time() 
     
     # Load and pre-shear the given light field
-    lf_volume, shifts = op_shear.pre_shear(lf_volume_in, dmin)
+    lf_volume = op_shear.pre_shear(lf_volume_in, dmin)
 
     lf_vol_pad = np.zeros((epi_h, op_shear.im_h, op_shear.epi_w, 3), np.float32) 
     lf_vol_pad[row_start:row_end:op_shear.samp_interval] = lf_volume
@@ -38,7 +38,7 @@ def rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end, sa
             Image.fromarray(lf_vol_rec[:, i]).save(join(path_save_epi, f"{(i+1):04d}.png"))
 
     # Post-shear and tailor the reconstructed light field 
-    lf_vol_rec = op_shear.back_shear(lf_vol_rec[row_start:row_end], shifts)
+    lf_vol_rec = op_shear.back_shear(lf_vol_rec[row_start:row_end])
     lf_vol_rec = lf_vol_rec[::(op_shear.samp_interval//op_shear.interp_rate)]
     lf_vol_rec[::op_shear.interp_rate] = lf_volume_in
    
@@ -54,14 +54,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--path_base", type=str, default="./demo")
-    parser.add_argument("--path_shearlet_system", type=str, default="./shearlets")
+    parser.add_argument("--path_shearlet_system", type=str, default="./shearlets/st_255_255_5.mat")
     parser.add_argument("--path_model", type=str, default="./ckpt")
     parser.add_argument("--interp_rate", default=4, type=int)
-    parser.add_argument("--samp_interval", default=32, type=int) # Fixed, don't change if you want to use the pre-trained model
+    parser.add_argument("--samp_interval", default=32, type=int) # Fixed, don't change it if you want to use the pre-trained model
     parser.add_argument("--im_h", default=512, type=int)
     parser.add_argument("--im_w", default=512, type=int)
-    parser.add_argument("--epi_w", default=672, type=int)
-    parser.add_argument("--epi_h", default=256, type=int)
     parser.add_argument("--angu_res_gt", default=9, type=int)
     parser.add_argument("--name_lf", type=str, default="tower_r_5")
     parser.add_argument("--dmin", default=-3.6, type=float)
@@ -76,8 +74,6 @@ if __name__ == "__main__":
     samp_interval = args.samp_interval
     im_h = args.im_h
     im_w = args.im_w
-    epi_w = args.epi_w
-    epi_h = args.epi_h
     angu_res_gt = args.angu_res_gt
     name_lf = args.name_lf
     dmin = args.dmin
@@ -89,11 +85,10 @@ if __name__ == "__main__":
     # Other parameters
     angu_res_in = (angu_res_gt - 1) // interp_rate + 1
     angu_res_full = (angu_res_in - 1) * samp_interval + 1
-    assert epi_h == max(angu_res_full+127, 256) # Required, set `epi_h` by following this equation
-    assert epi_w == ((int(im_w + abs(dmin) * (angu_res_gt - 1) + 128) >> 4) + 1) << 4 # Required, set `epi_w` by following this equation
+    epi_h = max(angu_res_full+127, 256) 
+    epi_w = ((int(im_w + abs(dmin) * (angu_res_gt - 1) + 128) >> 4) + 1) << 4
     row_start = (epi_h - angu_res_full) // 2
     row_end = row_start + angu_res_full
-    path_shearlets = join(path_shearlet_system, f"st_{epi_h}_{epi_w}_5.mat")
     path_save_lf = join(path_base, name_lf + "_lf_rec")
     create_path(path_save_lf)
     if not full_parallax:
@@ -101,7 +96,7 @@ if __name__ == "__main__":
         create_path(path_save_epi)
 
     # Load CycleST model
-    model = Model(path_shearlets, epi_h, epi_w)
+    model = Model(path_shearlet_system, epi_h, epi_w)
     checkpoint = tf.train.Checkpoint(step=tf.Variable(0), generator=model)
     checkpoint.restore(tf.train.latest_checkpoint(path_model))
     print(f"Best checkpoint loaded at step: {checkpoint.step.numpy()}")
@@ -126,11 +121,10 @@ if __name__ == "__main__":
             lf_volume_rec[row] = rec_lf_3d(model, lf_volume_in, op_shear, epi_h, dmin, row_start, row_end)
 
         if im_h != im_w:
-            tf.keras.backend.clear_session()
             # Load CycleST model
+            tf.keras.backend.clear_session()
             epi_w_new = ((int(im_h + abs(dmin) * (angu_res_gt - 1) + 128) >> 4) + 1) << 4
-            path_shearlets = join(path_shearlet_system, f"st_{epi_h}_{epi_w_new}_5.mat")
-            model = Model(path_shearlets, epi_h, epi_w_new)
+            model = Model(path_shearlet_system, epi_h, epi_w_new)
             checkpoint = tf.train.Checkpoint(step=tf.Variable(0), generator=model)
             checkpoint.restore(tf.train.latest_checkpoint(path_model))
             print(f"Best checkpoint loaded at step: {checkpoint.step.numpy()}")

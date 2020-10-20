@@ -1,8 +1,7 @@
-import cv2
 import numpy as np
 from PIL import Image
 from glob import glob
-
+from scipy.ndimage import shift
 
 def load_lf_3d(lf_folder, angu_res_gt, im_h, im_w):
     lf_volume = np.zeros((angu_res_gt, im_h, im_w, 3), np.uint8) 
@@ -24,42 +23,36 @@ def load_lf_4d(lf_folder, angu_res_gt_rows, angu_res_gt_cols, im_h, im_w):
 
 class lfShear:
 
-    def __init__(self, interp_rate, samp_interval=32, angu_res_in=9, angu_res_dense=65, 
-                im_h=512, im_w=512, epi_w=672, border_mode=cv2.BORDER_REPLICATE):
+    def __init__(self, interp_rate, samp_interval=32, angu_res_in=3, angu_res_dense=65, 
+                im_h=512, im_w=512, epi_w=672, border_mode="nearest"):
         self.interp_rate = interp_rate
         self.samp_interval = samp_interval
         self.angu_res_in = angu_res_in
         self.angu_res_dense = angu_res_dense
-        assert(self.angu_res_dense == ((self.angu_res_in - 1)*self.samp_interval + 1) )
-        
-        # build a 2D grid
+        assert self.angu_res_dense == ((self.angu_res_in - 1)*self.samp_interval + 1) 
         self.im_h = im_h
         self.im_w = im_w
         self.epi_w = epi_w
-        x = np.arange(0, self.epi_w)
-        y = np.arange(0, self.im_h)
-        gx, gy = np.meshgrid(x, y)
-        self.gx, self.gy = gx.astype(np.float32), gy.astype(np.float32)
-
         self.border_mode = border_mode
+        self.pad_left = 0
+        self.pad_right = 0
+
+    def padding_estimate(self, dmin):
+        self.dmin = dmin * self.interp_rate # dmin of the input SSLF
+        width_real = self.dmin * (self.angu_res_in - 1) + self.im_w
+        pad_left = int((self.epi_w - width_real) // 2)
+        self.pad_left = pad_left
+        self.pad_right = self.epi_w - self.im_w - self.pad_left
 
     def pre_shear(self, lf_volume_in, dmin):
-        dmin = dmin * self.interp_rate
-        shift = self.shiftCal(dmin)
-
-        lf_volume_shear = np.zeros((self.angu_res_in, self.im_h, self.epi_w, 3), np.uint8) # 9, 512, 672, 3
+        self.padding_estimate(dmin)
+        lf_volume_shear = np.pad(lf_volume_in, ( (0, 0), (0, 0), (self.pad_left, self.pad_right), (0, 0) ), mode="edge" )
         for i in range(len(lf_volume_in)):
-            lf_volume_shear[i] = cv2.remap(lf_volume_in[i], self.gx - i * dmin - shift, self.gy, 
-                            interpolation=cv2.INTER_CUBIC, borderMode=self.border_mode)
-        return lf_volume_shear, (dmin/self.samp_interval, shift)
+            lf_volume_shear[i] = shift(lf_volume_shear[i], [0, i*self.dmin, 0], order=0, mode=self.border_mode)
+        return lf_volume_shear 
 
-    def back_shear(self, lf_volume, shifts):
-        s, shift = shifts
+    def back_shear(self, lf_volume):
+        s = self.dmin / self.samp_interval
         for i in range(self.angu_res_dense):
-            lf_volume[i] = cv2.remap(lf_volume[i], self.gx + i * s + shift, self.gy, 
-                            interpolation=cv2.INTER_CUBIC, borderMode=self.border_mode)
-        return lf_volume[:, :, :self.im_w, :]
-
-    def shiftCal(self, dmin):
-        width_real = dmin * (self.angu_res_in - 1) + self.im_w
-        return (self.epi_w - width_real) // 2
+            lf_volume[i] = shift(lf_volume[i], [0, -i*s, 0], order=0, mode=self.border_mode) 
+        return lf_volume[:, :, self.pad_left:(self.pad_left+self.im_w), :]

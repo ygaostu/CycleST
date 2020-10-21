@@ -1,6 +1,8 @@
 # CycleST
-This is the official **TensorFlow 2** implementation of the paper "Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency" [[ArXiv](https://arxiv.org/abs/2003.09294)][[Video](https://www.youtube.com/watch?v=r9e4XoX07hE)]. 
-If you find this code useful in your research, please consider citing [1, 2] and 
+[![paper](https://img.shields.io/badge/ArXiv-Paper-green)](https://arxiv.org/abs/2003.09294)
+[![video](https://img.shields.io/badge/YouTube-Video-orange)](https://www.youtube.com/watch?v=r9e4XoX07hE)  
+This is an implementation of the paper "Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency" in ***TensorFlow 2***.
+If you find this code useful in your research, please consider citing [1, 2] and  
 ```
 @article{gao2020self,
   title={Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency},
@@ -11,15 +13,14 @@ If you find this code useful in your research, please consider citing [1, 2] and
   year={2020}
 }
 ```
-This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.1 and NVIDIA GeForce RTX 2080 GPU. 
+This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.1 and an NVIDIA GeForce RTX 2080 Ti GPU. 
 If you have any question, please contact the first author at <yuan.gao@tuni.fi>.
 
 ## Getting started ##
 ### 1. Python requirements ###
 Follow the instructions on the [TensorFlow official website](https://www.tensorflow.org/install) to install TensorFlow 2. In addition, we need Python Imaging Library (PIL) and SciPy libraries for image IO and shearing-related operations: 
 ``` bash
-pip install Pillow
-pip install scipy
+$ pip install Pillow, scipy
 ```
 ### 2. Prepare datasets ###
 A demo dataset `./demo/tower_r_5` is prepared here. 

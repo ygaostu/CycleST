@@ -20,7 +20,7 @@ If you have any question, please contact the first author at <yuan.gao@tuni.fi>.
 ### 1. Python requirements ###
 Follow the instructions on the [TensorFlow official website](https://www.tensorflow.org/install) to install TensorFlow 2. In addition, we need Python Imaging Library (PIL) and SciPy libraries for image IO and shearing-related operations: 
 ``` bash
-$ pip install Pillow, scipy
+$ pip install Pillow scipy
 ```
 ### 2. Prepare datasets ###
 A demo dataset `./demo/tower_r_5` is prepared here. 

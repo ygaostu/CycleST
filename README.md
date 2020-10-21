@@ -50,7 +50,7 @@ Besides, the generated input SSLF has minimum disparity -14.4 pixels, maximum di
 The pre-trained model of CycleST is suitable for light field reconstruction on any input SSLF with disparity range up to 32 pixels.  
 Let's evaluate the 3D light field reconstruction performance of CycleST by typing in the Terminal that
 ``` bash  
-python predict.py --path_base=./demo --name_lf=tower_r_5 --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4
+$ python predict.py --path_base=./demo --name_lf=tower_r_5 --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4
 ```
 The reconstructed horizontal-parallax light field is saved in `./demo/tower_r_5_lf_rec`. The intermediate results, i.e. reconstruced densely-sampled EPIs, are save in `./demo/tower_r_5_epi_rec`. 
 
@@ -59,7 +59,7 @@ In addition to the above 3D light field reconstruction, CycleST can also be appl
 Similarly, we prepare a demo 4D light field in `./demo/tower_4d` [3]. 
 We use the same parameter configuration as the previous step to enhance the angular resolution from 3 x 3 to 9 x 9. 
 ``` bash
-python predict.py --path_base=./demo --name_lf=tower_4d --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4 --full_parallax
+$ python predict.py --path_base=./demo --name_lf=tower_4d --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4 --full_parallax
 ```
 Refer to Fig. 6 (a) of [1] to get to know how to leverage 3D light field reconstruction approaches to perform full-parallax light fied reconstruction. 
 The reconstructed 4D light field is saved in `./demo/tower_4d_lf_rec`.

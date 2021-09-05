@@ -1,4 +1,4 @@
-# CycleST
+# CycleST (SPL2020)
 [![paper](https://img.shields.io/badge/ArXiv-Paper-green)](https://arxiv.org/abs/2003.09294)
 [![video](https://img.shields.io/badge/YouTube-Video-orange)](https://www.youtube.com/watch?v=r9e4XoX07hE)  
 This is an implementation of the paper "Self-Supervised Light Field Reconstruction Using Shearlet Transform and Cycle Consistency" in ***TensorFlow 2***.
@@ -30,17 +30,7 @@ As can be seen from the above figure, the demo 3D light field has minimum dispar
 In addition, the demo 3D light field `tower_r_5` has 9 images (`0001-0009.png`), of which each has the same size of 512 x 512 pixels.   
 
 ### 3. Shearlet system construction
-The construction of the elaborately-tailored shearlet system comes from the public [software](http://www.cs.tut.fi/~vagharsh/EPISparseRec.html) [1, 2].
-In order to generate the shearlet system that can be used by CycleST, we suggest using the below code 
-``` matlab
-addpath('./shearlets');
-kSize = 255;
-nScale = 5;
-sys = constructShearlet([kSize, kSize], 1:nScale); 
-dec = sys.dec;
-rec = sys.rec;
-save(sprintf('st_%d_%d_%d', kSize, kSize, nScale), 'dec', 'rec');
-```
+The construction of the elaborately-tailored shearlet system comes from this [Github repository](https://github.com/ygaostu/shearlets).
 The created mat file `st_255_255_5.mat` is placed in the `./shearlets` folder.  
 
 ### 4. Horizontal-parallax light field reconstruction ###
@@ -69,7 +59,6 @@ The reconstructed 4D light field is saved in `./demo/tower_4d_lf_rec`.
 no. 1, pp. 133–147, 2018.  
 > [2] S. Vagharshakyan, R. Bregovic, and A. Gotchev, "Accelerated shearlet-domain light field reconstruction," IEEE JSTSP, vol.
 11, no. 7, pp. 1082–1091, 2017.  
-> [3] K. Honauer, O. Johannsen, D. Kondermann, and B. Goldluecke, "A dataset and evaluation methodology for depth estimation on 4d light fields," ACCV, pp. 19-34, 2016.
 
 ## Acknowledgments ##
 > This work was supported by the project “Modeling and Visualization of Perceivable Light Fields” funded by Academy of Finland under grant No. 325530 and carried out with the support of [Centre for Immersive Visual Technologies (CIVIT)](https://civit.fi/) research infrastructure, Tampere University, Finland.

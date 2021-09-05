@@ -59,6 +59,7 @@ The reconstructed 4D light field is saved in `./demo/tower_4d_lf_rec`.
 no. 1, pp. 133–147, 2018.  
 > [2] S. Vagharshakyan, R. Bregovic, and A. Gotchev, "Accelerated shearlet-domain light field reconstruction," IEEE JSTSP, vol.
 11, no. 7, pp. 1082–1091, 2017.  
+> [3] K. Honauer, O. Johannsen, D. Kondermann, and B. Goldluecke, "A dataset and evaluation methodology for depth estimation on 4d light fields," ACCV, pp. 19-34, 2016.
 
 ## Acknowledgments ##
 > This work was supported by the project “Modeling and Visualization of Perceivable Light Fields” funded by Academy of Finland under grant No. 325530 and carried out with the support of [Centre for Immersive Visual Technologies (CIVIT)](https://civit.fi/) research infrastructure, Tampere University, Finland.

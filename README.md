@@ -38,11 +38,11 @@ The created mat file `st_255_255_5.mat` is placed in the `./model/shearlet_syste
 ### 4. Horizontal-parallax light field reconstruction ###
 The goal of this demo is to reconstruct the above demo 3D light field `tower_r_5` from a Sparsely-Sampled Light Field (SSLF) with only three images: `0001.png`, `0005.png` and `0009.png`.
 In other words, to generate this SSLF, the interpolation rate should be set to 4. 
-Besides, the generated input SSLF has minimum disparity -14.4 pixels, maximum disparity 14 pixels and disparity range 28.4 pixels. 
-The pre-trained model of CycleST is suitable for light field reconstruction on any input SSLF with disparity range up to 32 pixels.  
+Besides, the generated input SSLF has a minimum disparity of -14.4(=-3.6 x 4) pixels, a maximum disparity of 14(=3.5 x 4) pixels and a disparity range of 28.4(=14.4+14) pixels. 
+Note that the pre-trained model of CycleST is suitable for light field reconstruction on any input SSLF with a disparity range up to 32 pixels. 
 The below cmd can be used to evaluate the 3D light field reconstruction performance of CycleST:
 ``` bash  
-$ docker run --gpus all --env CUDA_VISIBLE_DEVICES=0 -v $PWD:/data -w /data --user $(id -u):$(id -g) -it --rm tf2:1.0 \  
+$ docker run --gpus all --env CUDA_VISIBLE_DEVICES=0 -v $PWD:/data -w /data --user $(id -u):$(id -g) -it --rm tf2:1.0 \
 python predict.py --path_base=./demo --name_lf=tower_r_5 --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4
 ```
 The reconstructed horizontal-parallax light field is saved in `./demo/tower_r_5_lf_rec`. The intermediate results, i.e. reconstruced densely-sampled EPIs, are save in `./demo/tower_r_5_epi_rec`. 
@@ -52,7 +52,7 @@ In addition to the above 3D light field reconstruction, CycleST can also be appl
 Similarly, we prepare a demo 4D light field in `./demo/tower_4d` [3]. 
 We use the same parameter configuration as the previous step to enhance the angular resolution from 3 x 3 to 9 x 9. 
 ``` bash
-$ docker run --gpus all --env CUDA_VISIBLE_DEVICES=0 -v $PWD:/data -w /data --user $(id -u):$(id -g) -it --rm tf2:1.0 \  
+$ docker run --gpus all --env CUDA_VISIBLE_DEVICES=0 -v $PWD:/data -w /data --user $(id -u):$(id -g) -it --rm tf2:1.0 \
 python predict.py --path_base=./demo --name_lf=tower_4d --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4 --full_parallax
 ```
 Please refer to Fig. 6 (a) in [1] to understand how to leverage 3D light field reconstruction approaches to perform the full-parallax light fied reconstruction. 

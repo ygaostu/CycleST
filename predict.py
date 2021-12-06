@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--path_base", type=str, default="./demo")
-    parser.add_argument("--path_shearlet_system", type=str, default="./shearlets/st_255_255_5.mat")
+    parser.add_argument("--path_shearlet_system", type=str, default="./model/shearlet_systems/st_255_255_5.mat")
     parser.add_argument("--path_model", type=str, default="./ckpt")
     parser.add_argument("--interp_rate", default=4, type=int)
     parser.add_argument("--samp_interval", default=32, type=int) # Fixed, don't change it if you want to use the pre-trained model

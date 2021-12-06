@@ -13,14 +13,16 @@ If you find this code useful in your research, please consider citing [1, 2] and
   year={2020}
 }
 ```
-This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.1 and an NVIDIA GeForce RTX 2080 Ti GPU. 
+This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.6.1 and an NVIDIA GeForce RTX 2080 Ti GPU. 
 If you have any question, please contact the first author at <yuan.gao@tuni.fi>.
 
 ## Getting started ##
 ### 1. Python requirements ###
-Follow the instructions on the [TensorFlow official website](https://www.tensorflow.org/install) to install TensorFlow 2. In addition, we need Python Imaging Library (PIL) and SciPy libraries for image IO and shearing-related operations: 
+This demo relies on TensorFlow 2, Python Imaging Library (PIL) and SciPy: 
 ``` bash
-$ pip install Pillow scipy
+$ git clone --recurse-submodules https://github.com/ygaostu/CycleST.git
+$ cd CycleST
+$ docker build -t tf2:1.0 .
 ```
 ### 2. Prepare datasets ###
 A demo dataset `./demo/tower_r_5` is prepared here. 
@@ -31,16 +33,17 @@ In addition, the demo 3D light field `tower_r_5` has 9 images (`0001-0009.png`),
 
 ### 3. Shearlet system construction
 The construction of the elaborately-tailored shearlet system comes from this [Github repository](https://github.com/ygaostu/shearlets).
-The created mat file `st_255_255_5.mat` is placed in the `./shearlets` folder.  
+The created mat file `st_255_255_5.mat` is placed in the `./model/shearlet_systems` folder.  
 
 ### 4. Horizontal-parallax light field reconstruction ###
 The goal of this demo is to reconstruct the above demo 3D light field `tower_r_5` from a Sparsely-Sampled Light Field (SSLF) with only three images: `0001.png`, `0005.png` and `0009.png`.
 In other words, to generate this SSLF, the interpolation rate should be set to 4. 
 Besides, the generated input SSLF has minimum disparity -14.4 pixels, maximum disparity 14 pixels and disparity range 28.4 pixels. 
 The pre-trained model of CycleST is suitable for light field reconstruction on any input SSLF with disparity range up to 32 pixels.  
-Let's evaluate the 3D light field reconstruction performance of CycleST by typing in the Terminal that
+The below cmd can be used to evaluate the 3D light field reconstruction performance of CycleST:
 ``` bash  
-$ python predict.py --path_base=./demo --name_lf=tower_r_5 --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4
+$ docker run --gpus all --env CUDA_VISIBLE_DEVICES=0 -v $PWD:/data -w /data --user $(id -u):$(id -g) -it --rm tf2:1.0 \  
+python predict.py --path_base=./demo --name_lf=tower_r_5 --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4
 ```
 The reconstructed horizontal-parallax light field is saved in `./demo/tower_r_5_lf_rec`. The intermediate results, i.e. reconstruced densely-sampled EPIs, are save in `./demo/tower_r_5_epi_rec`. 
 
@@ -49,9 +52,10 @@ In addition to the above 3D light field reconstruction, CycleST can also be appl
 Similarly, we prepare a demo 4D light field in `./demo/tower_4d` [3]. 
 We use the same parameter configuration as the previous step to enhance the angular resolution from 3 x 3 to 9 x 9. 
 ``` bash
-$ python predict.py --path_base=./demo --name_lf=tower_4d --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4 --full_parallax
+$ docker run --gpus all --env CUDA_VISIBLE_DEVICES=0 -v $PWD:/data -w /data --user $(id -u):$(id -g) -it --rm tf2:1.0 \  
+python predict.py --path_base=./demo --name_lf=tower_4d --angu_res_gt=9 --dmin=-3.6 --dmax=3.5 --interp_rate=4 --full_parallax
 ```
-Refer to Fig. 6 (a) of [1] to get to know how to leverage 3D light field reconstruction approaches to perform full-parallax light fied reconstruction. 
+Please refer to Fig. 6 (a) in [1] to understand how to leverage 3D light field reconstruction approaches to perform the full-parallax light fied reconstruction. 
 The reconstructed 4D light field is saved in `./demo/tower_4d_lf_rec`.
 
 ## References ##

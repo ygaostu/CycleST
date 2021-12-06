@@ -28,7 +28,7 @@ $ docker build -t tf2:1.0 .
 A demo dataset `./demo/tower_r_5` is prepared here. 
 Speicifially, this demo dataset is the 5-th horizontal-parallax light field of the 4D light field `Tower` from the [4D Light Field Benchmark](https://lightfield-analysis.uni-konstanz.de/) [3]:  
 [![](./demo/lf_tower.png "4D light field Tower")](https://lightfield-analysis.uni-konstanz.de/)  
-As can be seen from the above figure, the demo 3D light field has minimum disparity -3.6 pixels and maximum disparity 3.5 pixels. 
+As can be seen from the above figure, the demo 3D light field has a minimum disparity of -3.6 pixels and a maximum disparity of 3.5 pixels. 
 In addition, the demo 3D light field `tower_r_5` has 9 images (`0001-0009.png`), of which each has the same size of 512 x 512 pixels.   
 
 ### 3. Shearlet system construction

@@ -13,7 +13,7 @@ If you find this code useful in your research, please consider citing [1, 2] and
   year={2020}
 }
 ```
-This code has been tested on an Ubuntu 18.04 system using Tensorflow 2.6.1 and an NVIDIA GeForce RTX 2080 Ti GPU. 
+This code has been tested on an Ubuntu 18.04 system using TensorFlow 2.6.1 and an NVIDIA GeForce RTX 2080 Ti GPU. 
 If you have any question, please contact the first author at <yuan.gao@tuni.fi>.
 
 ## Getting started ##
